@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -49,13 +50,17 @@ var defaultTemplate = `
 </html>`
 
 func main() {
+	filename := flag.String("filename", "scenario.json", "Please enter the full path of json file.")
+	port := flag.String("port", "8080", "The web server port.")
+	flag.Parse()
+
 	handler := chaptersHandler{
 		tpl:      template.Must(template.New("").Parse(defaultTemplate)),
-		chapters: parseChapters(),
+		chapters: parseChapters(*filename),
 	}
 
-	fmt.Println("Starting the server on :8080")
-	http.ListenAndServe(":8080", defaultMux(handler))
+	fmt.Println("Starting the server on :", *port)
+	http.ListenAndServe(":" + *port, defaultMux(handler))
 }
 
 func (h chaptersHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -78,8 +83,8 @@ func (h chaptersHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusForbidden)
 }
 
-func parseChapters() map[string]Chapter {
-	j, err := ioutil.ReadFile("scenario.json")
+func parseChapters(filename string) map[string]Chapter {
+	j, err := ioutil.ReadFile(filename)
 	checkErr(err)
 
 	var chapters map[string]Chapter
