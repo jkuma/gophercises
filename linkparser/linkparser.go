@@ -11,9 +11,9 @@ type Link struct {
 	Text string
 }
 
-type Parser struct {}
+type Parser struct{}
 
-func checkError(err error)  {
+func checkError(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -7,7 +7,7 @@ type square struct {
 }
 
 type triangle struct {
-	base float64
+	base   float64
 	height float64
 }
 
@@ -15,9 +15,8 @@ type shape interface {
 	getArea() float64
 }
 
-
-func main()  {
-	sqa, tri := square{11}, triangle{10,14.2}
+func main() {
+	sqa, tri := square{11}, triangle{10, 14.2}
 
 	printArea(sqa)
 	printArea(tri)

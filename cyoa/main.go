@@ -60,7 +60,7 @@ func main() {
 	}
 
 	fmt.Println("Starting the server on :", *port)
-	http.ListenAndServe(":" + *port, defaultMux(handler))
+	http.ListenAndServe(":"+*port, defaultMux(handler))
 }
 
 func (h chaptersHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {

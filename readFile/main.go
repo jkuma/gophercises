@@ -21,6 +21,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	_,_ = io.Copy(os.Stdout, file)
+	_, _ = io.Copy(os.Stdout, file)
 	os.Exit(1)
 }
