@@ -1,3 +1,4 @@
+github.com/jkuma/gophercises v0.0.0-20191015183117-a88cb0473218 h1:Gg8SqaxdEP7ErMqjB2AryKMQYhHmWdfhswcpBowQG+k=
 github.com/jkuma/gophercises/linkparser v0.0.0-20191015165131-9b4c9e986831 h1:XKytUYh3AoeCjJC/iO9ov16ygY6yLGc7Sz4J1l18/6s=
 github.com/jkuma/gophercises/linkparser v0.0.0-20191015165131-9b4c9e986831/go.mod h1:BIcUwwAGlWarXYR37qHbh4SAQAB1HZ8q9TCLRRy15Wg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
