@@ -1,68 +1,78 @@
 package sitemap
 
 import (
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"github.com/jkuma/gophercises/linkparser"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 )
+
+const xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 type Location struct {
 	ParentUrl string
 	Url       string
-	Depth     int16
+	Depth     int
 }
 
 type Sitemap struct {
 	Url      string
-	MaxDepth int16
+	MaxDepth int
+}
+
+type loc struct {
+	Value string `xml:"loc"`
+}
+
+type urlset struct {
+	Urls  []loc  `xml:"url"`
+	Xmlns string `xml:"xmlns,attr"`
 }
 
 func (s Sitemap) Build() map[string][]Location {
 	m := make(map[string][]Location)
-	var f func(m *map[string][]Location, u string, d int16)
+	var f func(m *map[string][]Location, u string, d int)
 
-	if s.Url != "" {
-		c := make(chan []Location)
+	f = func(m *map[string][]Location, u string, d int) {
+		p := *m
 
-		f = func(m *map[string][]Location, u string, d int16) {
-			p := *m
+		p[u] = locations(u, d)
 
-			go locations(u, d, c)
-			p[u] = <-c
-
-			for _, loc := range p[u] {
-				if loc.Depth <= s.MaxDepth {
-					if _, ok := p[loc.Url]; !ok {
-						f(m, loc.Url, loc.Depth)
-					}
+		for _, loc := range p[u] {
+			if loc.Depth < s.MaxDepth {
+				if _, ok := p[loc.Url]; !ok {
+					f(m, loc.Url, loc.Depth)
 				}
 			}
 		}
-		f(&m, s.Url, 0)
 	}
+	f(&m, s.Url, 0)
 
 	return m
 }
 
 func (s Sitemap) PrintXML() {
-	var w string
 	l := s.Build()
 
-	for u, locs := range l {
-		w += fmt.Sprintf("domain: %v\nlocations: %v", u, locs)
+	toXml := urlset{
+		Xmlns: xmlns,
 	}
 
-	_, _ = io.Copy(os.Stdout, strings.NewReader(w))
+	for u, _ := range l {
+		toXml.Urls = append(toXml.Urls, loc{u})
+	}
+
+	fmt.Print(xml.Header)
+	enc := xml.NewEncoder(os.Stdout)
+	_ = enc.Encode(toXml)
 }
 
 // Returns a list of locations for given url.
-func locations(parent string, depth int16, c chan []Location) {
+func locations(parent string, depth int) []Location {
 	var locations []Location
 	resp, err := http.Get(parent)
 
@@ -83,7 +93,7 @@ func locations(parent string, depth int16, c chan []Location) {
 
 	}
 
-	c <- locations
+	return locations
 }
 
 func createUrlFromHref(parent string, href string) (string, error) {
