@@ -23,7 +23,7 @@ func getLink(n *html.Node) Link {
 	var l Link
 
 	for _, attr := range n.Attr {
-		if attr.Key == "href" {
+		if attr.Key == "href" && n.FirstChild != nil {
 			l.Href, l.Text = attr.Val, n.FirstChild.Data
 		}
 	}
