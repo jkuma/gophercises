@@ -18,13 +18,13 @@ var cmdDo = &cobra.Command{
 			println(err)
 		}
 
-		t, err := task.DeleteTask(k)
+		t, err := task.DeleteTask(k, true)
 
 		if err != nil {
 			println(err)
 		}
 
-		fmt.Println("Task done:", t.Name)
+		fmt.Printf("You have deleted the '%v' task.\n", t.Name)
 	},
 }
 
