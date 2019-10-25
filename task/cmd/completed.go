@@ -21,7 +21,7 @@ var cmdCompleted = &cobra.Command{
 		}
 
 		for _, t := range tasks {
-			fmt.Println(time.Unix(t.Time, 0).Format(time.RFC822), t.Task.Number, t.Task.Name)
+			fmt.Println(time.Unix(t.Time, 0).Format(time.RFC1123), t.Task.Number, t.Task.Name)
 		}
 	},
 }
