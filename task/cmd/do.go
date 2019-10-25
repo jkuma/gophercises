@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/jkuma/gophercises/task/task"
+	"github.com/jkuma/gophercises/task/repository"
 	"github.com/spf13/cobra"
 	"strconv"
 )
@@ -18,11 +18,13 @@ var cmdDo = &cobra.Command{
 			println(err)
 		}
 
-		t, err := task.DeleteTask(k, true)
+		t, err := repository.DeleteTask(int64(k))
 
 		if err != nil {
 			println(err)
 		}
+
+		_ = repository.MarkTaskAsCompleted(t)
 
 		fmt.Printf("You have deleted the '%v' task.\n", t.Name)
 	},

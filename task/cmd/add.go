@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/jkuma/gophercises/task/task"
+	"github.com/jkuma/gophercises/task/repository"
 	"github.com/spf13/cobra"
 	"log"
 	"strings"
@@ -14,7 +14,7 @@ var cmdPrint = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		t := strings.Join(args, " ")
-		err := task.AddTask(t)
+		err := repository.AddTask(t)
 
 		if err != nil {
 			log.Fatalf("The task %v cannot be added", t)

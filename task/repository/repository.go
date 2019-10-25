@@ -1,20 +1,21 @@
-package task
+package repository
 
 import (
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
 	"fmt"
+	"github.com/jkuma/gophercises/task/database"
 	bolt "go.etcd.io/bbolt"
-	"log"
 	"time"
 )
 
 const MainBucket = "tasks"
 const CompletedBucket = "completed"
+const DBName = "my.db"
 
 type Task struct {
-	Number int
+	Number int64
 	Name   string
 }
 
@@ -24,15 +25,10 @@ type CompletedTask struct {
 }
 
 func AddTask(task string) error {
-	// Open the my.db data file in your current directory.
-	// It will be created if it doesn't exist.
-	db, err := bolt.Open("my.db", 0600, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	db, _ := database.DB(DBName)
 	defer db.Close()
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	err := db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(MainBucket))
 
 		if err != nil {
@@ -45,47 +41,41 @@ func AddTask(task string) error {
 		id, _ := b.NextSequence()
 
 		// Persist bytes to users bucket.
-		return b.Put(itob(int(id)), []byte(task))
+		return b.Put(i64tob(int64(id)), []byte(task))
 	})
 
 	return err
 }
 
-func DeleteTask(number int, completed bool) (Task, error) {
+func DeleteTask(number int64) (Task, error) {
 	var t Task
-	// Open the my.db data file in your current directory.
-	// It will be created if it doesn't exist.
-	db, err := bolt.Open("my.db", 0600, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	db, _ := database.DB(DBName)
 	defer db.Close()
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	err := db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(MainBucket))
 
 		if err != nil {
 			return fmt.Errorf("create bucket: %s", err)
 		}
 
-		v := string(b.Get(itob(number)))
+		v := string(b.Get(i64tob(number)))
 
 		if v != "" {
 			t.Number, t.Name = number, v
 		}
 
 		// Persist bytes to users bucket.
-		return b.Delete(itob(number))
+		return b.Delete(i64tob(number))
 	})
-
-	if err == nil && completed {
-		err = markTaskAsCompleted(db, t)
-	}
 
 	return t, err
 }
 
-func markTaskAsCompleted(db *bolt.DB, task Task) error {
+func MarkTaskAsCompleted(task Task) error {
+	db, _ := database.DB(DBName)
+	defer db.Close()
+
 	err := db.Update(func(tx *bolt.Tx) error {
 		var buffer bytes.Buffer
 		b, err := tx.CreateBucketIfNotExists([]byte(CompletedBucket))
@@ -94,13 +84,18 @@ func markTaskAsCompleted(db *bolt.DB, task Task) error {
 			return fmt.Errorf("create bucket: %s", err)
 		}
 
-		err = gob.NewEncoder(&buffer).Encode(task)
+		err = gob.NewEncoder(&buffer).Encode(CompletedTask{
+			Time: time.Now().Unix(),
+			Task: task,
+		})
 
 		if err != nil {
 			return fmt.Errorf("buffer error: %s", err)
 		}
 
-		return b.Put(i64tob(time.Now().Unix()), buffer.Bytes())
+		id, _ := b.NextSequence()
+
+		return b.Put(i64tob(int64(id)), buffer.Bytes())
 	})
 
 	return err
@@ -108,15 +103,11 @@ func markTaskAsCompleted(db *bolt.DB, task Task) error {
 
 func ListTasks() ([]Task, error) {
 	var tasks []Task
-	// Open the my.db data file in your current directory.
-	// It will be created if it doesn't exist.
-	db, err := bolt.Open("my.db", 0600, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	db, _ := database.DB(DBName)
 	defer db.Close()
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	err := db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(MainBucket))
 
 		if err != nil {
@@ -125,7 +116,7 @@ func ListTasks() ([]Task, error) {
 
 		err = b.ForEach(func(k, v []byte) error {
 			tasks = append(tasks, Task{
-				Number: btoi(k),
+				Number: btoi64(k),
 				Name:   string(v),
 			})
 
@@ -138,17 +129,13 @@ func ListTasks() ([]Task, error) {
 	return tasks, err
 }
 
-func ListCompletedTasks() (map[int]Task, error) {
-	tasks := map[int]Task{}
-	// Open the my.db data file in your current directory.
-	// It will be created if it doesn't exist.
-	db, err := bolt.Open("my.db", 0600, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+func ListCompletedTasks() ([]CompletedTask, error) {
+	var tasks []CompletedTask
+
+	db, _ := database.DB(DBName)
 	defer db.Close()
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	err := db.Update(func(tx *bolt.Tx) error {
 		var buffer bytes.Buffer
 		b, err := tx.CreateBucketIfNotExists([]byte(CompletedBucket))
 
@@ -157,12 +144,12 @@ func ListCompletedTasks() (map[int]Task, error) {
 		}
 
 		err = b.ForEach(func(k, v []byte) error {
-			var t Task
+			var t CompletedTask
 			_, err = buffer.Write(v)
 			err = gob.NewDecoder(&buffer).Decode(&t)
 			buffer.Reset()
 
-			tasks[btoi(k)] = t
+			tasks = append(tasks, t)
 
 			return err
 		})
@@ -173,13 +160,6 @@ func ListCompletedTasks() (map[int]Task, error) {
 	return tasks, err
 }
 
-// Returns an 8-byte big endian representation of v.
-func itob(v int) []byte {
-	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, uint64(v))
-	return b
-}
-
 func i64tob(v int64) []byte {
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, uint64(v))
@@ -187,6 +167,6 @@ func i64tob(v int64) []byte {
 }
 
 // Returns an integer of byte slice b.
-func btoi(b []byte) int {
-	return int(binary.BigEndian.Uint64(b))
+func btoi64(b []byte) int64 {
+	return int64(binary.BigEndian.Uint64(b))
 }
