@@ -7,7 +7,7 @@ import (
 func TestNormalize(t *testing.T) {
 	testCases := []struct {
 		input string
-		want string
+		want  string
 	}{
 		{"1234567890", "1234567890"},
 		{"123 456 7891", "1234567891"},

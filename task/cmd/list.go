@@ -10,7 +10,7 @@ import (
 var cmdList = &cobra.Command{
 	Use:   "list",
 	Short: "List all of your incomplete tasks",
-	Args: cobra.NoArgs,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("You have the following tasks:")
 		tasks, err := repository.ListTasks()
@@ -28,4 +28,3 @@ var cmdList = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cmdList)
 }
-

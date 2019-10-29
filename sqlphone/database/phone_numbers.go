@@ -110,7 +110,7 @@ func numbers() []string {
 	}
 }
 
-func checkerr (err error) {
+func checkerr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}

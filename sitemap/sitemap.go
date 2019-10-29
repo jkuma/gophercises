@@ -83,11 +83,11 @@ func locations(parent string, depth int) []Location {
 	l := linkparser.Parser{}.Parse(resp.Body)
 
 	for _, link := range l {
-		if u, e := createUrlFromHref(parent, link.Href); e == nil{
+		if u, e := createUrlFromHref(parent, link.Href); e == nil {
 			locations = append(locations, Location{
 				ParentUrl: parent,
-				Url: u,
-				Depth: depth+1,
+				Url:       u,
+				Depth:     depth + 1,
 			})
 		}
 

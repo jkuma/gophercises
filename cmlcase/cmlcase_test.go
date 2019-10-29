@@ -9,4 +9,3 @@ func TestCount(t *testing.T) {
 		t.Errorf("The string %v has 3 words", s)
 	}
 }
-

@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	deck := *deck2.NewDeck()
+	deck := deck2.NewDeck()
 	deck.Shuffle()
 	fmt.Println(deck)
 }

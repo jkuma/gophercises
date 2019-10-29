@@ -10,7 +10,7 @@ import (
 var cmdDo = &cobra.Command{
 	Use:   "do [task number]",
 	Short: "Mark a task on your TODO list as complete",
-	Args: cobra.ExactValidArgs(1),
+	Args:  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		k, err := strconv.Atoi(args[0])
 

@@ -11,7 +11,7 @@ import (
 var cmdCompleted = &cobra.Command{
 	Use:   "completed",
 	Short: "List all of your completed tasks",
-	Args: cobra.NoArgs,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("You have the following completed tasks:")
 		tasks, err := repository.ListCompletedTasks()
@@ -29,4 +29,3 @@ var cmdCompleted = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cmdCompleted)
 }
-

@@ -45,7 +45,6 @@ func MarkTaskAsCompleted(task Task) error {
 	return err
 }
 
-
 func ListCompletedTasks() ([]CompletedTask, error) {
 	var tasks []CompletedTask
 
@@ -76,4 +75,3 @@ func ListCompletedTasks() ([]CompletedTask, error) {
 
 	return tasks, err
 }
-
