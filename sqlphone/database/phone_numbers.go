@@ -2,11 +2,53 @@ package database
 
 import "log"
 
-
 func init() {
-	checkerr(dropTable())
-	checkerr(createTable())
-	checkerr(setTable())
+	dropTable()
+	createTable()
+	setTable()
+}
+
+func NumberExists(number string) bool {
+	db := DB()
+
+	tx, err := db.Begin()
+	checkerr(err)
+	defer tx.Rollback()
+
+	stmt, err := tx.Prepare("SELECT * FROM phone_numbers WHERE number=$1")
+	checkerr(err)
+	defer stmt.Close()
+
+	rows, err := stmt.Query(number)
+	checkerr(err)
+
+	return rows.Next()
+}
+
+func DeleteNumber(number string) error {
+	db := DB()
+
+	tx, err := db.Begin()
+	checkerr(err)
+	defer tx.Rollback()
+
+	_, err = tx.Exec("DELETE FROM phone_numbers WHERE number=$1", number)
+
+	checkerr(err)
+	return tx.Commit()
+}
+
+func UpdateNumber(numberId int, number string) error {
+	db := DB()
+
+	tx, err := db.Begin()
+	checkerr(err)
+	defer tx.Rollback()
+
+	_, err = tx.Exec("UPDATE phone_numbers SET number=$1 WHERE number_id=$2", number, numberId)
+
+	checkerr(err)
+	return tx.Commit()
 }
 
 func dropTable() error {
