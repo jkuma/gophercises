@@ -30,15 +30,15 @@ func NewDeck() *Deck {
 }
 
 func (d *Deck) Shuffle() {
-	var deck Deck
+	var cards []Card
 
 	rand.Seed(time.Now().UnixNano())
 
 	for _ = range d.Cards {
 		i := rand.Intn(len(d.Cards))
-		deck.Cards = append(deck.Cards, d.Cards[i])
+		cards = append(cards, d.Cards[i])
 		d.Cards = append(d.Cards[:i], d.Cards[i+1:]...)
 	}
 
-	d.Cards = deck.Cards
+	d.Cards = cards
 }
