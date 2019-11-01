@@ -99,6 +99,12 @@ func (c *Cards) Filter(cards Cards) {
 	}
 }
 
+func (c *Cards) Jokers() {
+	for i:= 1; i <= 4; i++ {
+		*c = append(*c, Card{Rank: Rank(i), Suit: Joker})
+	}
+}
+
 func DefaultSort(c Cards) func(i, j int) bool {
 	f := func(card Card) int {
 		return int(maxRank) * int(card.Suit) + int(card.Rank)

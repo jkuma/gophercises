@@ -22,4 +22,7 @@ func main() {
 
 	c.Shuffle()
 	fmt.Println(c)
+
+	c.Jokers()
+	fmt.Println(c)
 }
