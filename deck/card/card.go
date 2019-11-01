@@ -64,6 +64,16 @@ func NewDeck() *Cards {
 	return &cards
 }
 
+func Decks(n int) []*Cards {
+	decks := make([]*Cards, n)
+
+	for i := 0; i < n; i++ {
+		decks[i] = NewDeck()
+	}
+
+	return decks
+}
+
 func (c *Cards) Sort(less func(c Cards) func(i, j int) bool) {
 	sort.Slice(*c, less(*c))
 }
@@ -77,6 +87,16 @@ func (c *Cards) Shuffle() {
 	}
 
 	*c = cards
+}
+
+func (c *Cards) Filter(cards Cards) {
+	for i, card := range *c {
+		for _, fcard := range cards {
+			if card == fcard {
+				*c = append((*c)[:i], (*c)[i+1:]...)
+			}
+		}
+	}
 }
 
 func DefaultSort(c Cards) func(i, j int) bool {
