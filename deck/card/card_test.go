@@ -8,7 +8,7 @@ import (
 func TestNewDeck(t *testing.T) {
 	cards := NewDeck()
 
-	if len(*cards) != 52 {
+	if len(cards) != 52 {
 		t.Error("A new deck should contain 52 cards.")
 	}
 }
@@ -32,7 +32,7 @@ func TestCards_Filter(t *testing.T) {
 	d := NewDeck()
 	d.Filter(filters)
 
-	for _, c := range *d {
+	for _, c := range d {
 		for _, f := range filters {
 			if c == f {
 				t.Errorf("The deck should not contain %v", f)

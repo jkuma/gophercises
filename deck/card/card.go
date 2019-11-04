@@ -53,7 +53,7 @@ type Card struct {
 
 type Cards []Card
 
-func NewDeck() *Cards {
+func NewDeck() Cards {
 	var cards Cards
 	for _, suit := range suits {
 		for rank := minRank; rank <= maxRank; rank++ {
@@ -61,11 +61,11 @@ func NewDeck() *Cards {
 		}
 	}
 
-	return &cards
+	return cards
 }
 
-func Decks(n int) []*Cards {
-	decks := make([]*Cards, n)
+func Decks(n int) []Cards {
+	decks := make([]Cards, n)
 
 	for i := 0; i < n; i++ {
 		decks[i] = NewDeck()
