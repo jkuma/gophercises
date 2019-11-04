@@ -18,7 +18,7 @@ type Draw interface {
 type Player struct {
 	Name string
 	Cards card.Cards
-	Score int8
+	Score uint8
 	Dealer bool
 }
 
