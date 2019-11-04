@@ -6,9 +6,9 @@ import (
 )
 
 func TestNewDeck(t *testing.T) {
-	cards := NewDeck()
+	deck := NewDeck()
 
-	if len(cards) != 52 {
+	if len(deck) != 52 {
 		t.Error("A new deck should contain 52 cards.")
 	}
 }
@@ -18,6 +18,26 @@ func TestDecks(t *testing.T) {
 
 	if len(decks) != 2 {
 		t.Error("It should contains two decks.")
+	}
+}
+
+func TestCards_DealCard(t *testing.T) {
+	want := Card{Rank: Ace, Suit: Spade}
+	deck := NewDeck()
+	deck.Sort(DefaultSort)
+
+	card, err := deck.DealCard()
+
+	if err != nil {
+		t.Error("The deck should not be empty.")
+	}
+
+	if card != want {
+		t.Error("The first card should be an Ace of spades.")
+	}
+
+	if len(deck) != 51 {
+		t.Error("The deck should contain 51 cards after dealing one card.")
 	}
 }
 

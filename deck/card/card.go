@@ -3,12 +3,17 @@
 package card
 
 import (
+	"errors"
 	"math/rand"
 	"sort"
 	"time"
 )
 
 type Suit uint8
+
+const (
+	DeckIsEmpty = "the deck is empty"
+)
 
 const (
 	_ Suit = iota
@@ -89,6 +94,8 @@ func (c *Cards) Shuffle() {
 	*c = cards
 }
 
+
+
 func (c *Cards) Filter(cards Cards) {
 	for i, card := range *c {
 		for _, fcard := range cards {
@@ -103,6 +110,19 @@ func (c *Cards) Jokers() {
 	for i:= 1; i <= 4; i++ {
 		*c = append(*c, Card{Rank: Rank(i), Suit: Joker})
 	}
+}
+
+func (c *Cards) DealCard() (Card, error) {
+	var card Card
+
+	if len(*c) == 0 {
+		return card, errors.New(DeckIsEmpty)
+	}
+
+	card = (*c)[0]
+	*c = append((*c)[:0], (*c)[1:]...)
+
+	return card, nil
 }
 
 func DefaultSort(c Cards) func(i, j int) bool {
