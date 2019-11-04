@@ -1,7 +1,7 @@
 package main
 
-import "github.com/jkuma/gophercises/blackjack/engine"
+import "github.com/jkuma/gophercises/blackjack/game"
 
 func main() {
-	engine.Run()
+	game.Run()
 }

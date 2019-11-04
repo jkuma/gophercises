@@ -9,7 +9,7 @@ func main() {
 	c := card.NewDeck()
 	c.Sort(card.DefaultSort)
 	fmt.Println(c)
-	
+
 	filters := card.Cards{
 		card.Card{Rank: card.Ace, Suit: card.Heart},
 		card.Card{Rank: card.Ace, Suit: card.Club},

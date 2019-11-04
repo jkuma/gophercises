@@ -94,8 +94,6 @@ func (c *Cards) Shuffle() {
 	*c = cards
 }
 
-
-
 func (c *Cards) Filter(cards Cards) {
 	for i, card := range *c {
 		for _, fcard := range cards {
@@ -107,7 +105,7 @@ func (c *Cards) Filter(cards Cards) {
 }
 
 func (c *Cards) Jokers() {
-	for i:= 1; i <= 4; i++ {
+	for i := 1; i <= 4; i++ {
 		*c = append(*c, Card{Rank: Rank(i), Suit: Joker})
 	}
 }
@@ -127,7 +125,7 @@ func (c *Cards) DealCard() (Card, error) {
 
 func DefaultSort(c Cards) func(i, j int) bool {
 	f := func(card Card) int {
-		return int(maxRank) * int(card.Suit) + int(card.Rank)
+		return int(maxRank)*int(card.Suit) + int(card.Rank)
 	}
 
 	return func(i, j int) bool {
@@ -137,7 +135,7 @@ func DefaultSort(c Cards) func(i, j int) bool {
 
 func RankSort(c Cards) func(i, j int) bool {
 	f := func(card Card) int {
-		return int(maxSuit) * int(card.Rank) + int(card.Suit)
+		return int(maxSuit)*int(card.Rank) + int(card.Suit)
 	}
 
 	return func(i, j int) bool {
