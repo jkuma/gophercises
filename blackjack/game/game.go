@@ -38,6 +38,16 @@ func Run() {
 	// Hit or stand??
 	fmt.Println("...Hit or Stand???...")
 	secondRound(g)
+
+	ds := g.Dealer.CardsScore()
+	for _, p := range g.Players {
+		if p.CardsScore() >= ds {
+			p.Score++
+		}
+		fmt.Println(p.Name, "score is:", p.CardsScore())
+	}
+
+	fmt.Println(g.Dealer.Name, "score is:", g.Dealer.CardsScore())
 }
 
 func firstRound(g Game) {
@@ -74,5 +84,6 @@ func secondRound(g Game) {
 		}
 	}
 
+	fmt.Println(g.Dealer.Name, "hans is", g.Dealer.Cards)
 	g.DealerDraw()
 }
