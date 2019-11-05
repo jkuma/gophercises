@@ -39,15 +39,9 @@ func Run() {
 	fmt.Println("...Hit or Stand???...")
 	secondRound(g)
 
-	ds := g.Dealer.CardsScore()
-	for _, p := range g.Players {
-		if p.CardsScore() >= ds {
-			p.Score++
-		}
-		fmt.Println(p.Name, "score is:", p.CardsScore())
-	}
-
-	fmt.Println(g.Dealer.Name, "score is:", g.Dealer.CardsScore())
+	// Score
+	fmt.Println("...Results...")
+	finalRound(g)
 }
 
 func firstRound(g Game) {
@@ -84,6 +78,27 @@ func secondRound(g Game) {
 		}
 	}
 
-	fmt.Println(g.Dealer.Name, "hans is", g.Dealer.Cards)
 	g.DealerDraw()
+	fmt.Println(g.Dealer.Name, "hand is", g.Dealer.Cards)
+}
+
+func finalRound(g Game) {
+	ds := g.Dealer.CardsScore()
+	for _, p := range g.Players {
+		ps := p.CardsScore()
+		switch {
+		case ps > Blackjack:
+			fmt.Println(p.Name, "busted")
+			p.Score++
+		case ds > Blackjack:
+			fmt.Println("Dealer busted")
+		case ps > ds:
+			fmt.Println(p.Name, "wins against the bank")
+			p.Score++
+		case ds > ps:
+			fmt.Println(p.Name, "loses")
+		case ds == ps:
+			fmt.Println("Draw")
+		}
+	}
 }
