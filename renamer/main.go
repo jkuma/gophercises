@@ -1,11 +1,25 @@
+/*
+	This package exposes a command line to massively rename files
+	based on the pattern bellow:
+		- xxxxxx_NNN.ext
+
+	The matched files are renamed to xxxxxx (index of nbfiles).ext
+
+	Flags available:
+		- path: the complete path to directory of file to be scanned.
+		- dry: if true, run the commands without modifying files.
+*/
+
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
+	"strconv"
 )
 
 func init() {
@@ -26,46 +40,68 @@ func init() {
 	os.Create("./samples/nested/n_010.txt")
 }
 
-type RenameTarget struct {
-	Path string
-	Basename string
-}
-
 func main() {
-	var found []RenameTarget
-	path := flag.String("path", "samples", "A path where files will be renamed recursively")
-	pattern := flag.String("pattern", "", "A pattern that rename a specific subset of files. It takes all the files that end in _NNN.txt and rename them to instead read (1 of 4).txt")
+	rename := make(map[string][]MatchResult)
+	p := flag.String("path", "samples", "A path where files will be renamed recursively")
+	d := flag.Bool("dry", false, "Do everything apart from actually renaming the files")
 	flag.Parse()
 
-	if i := strings.Index(*pattern, "_NNN.txt"); i != -1 {
-		needle := (*pattern)[:i]
+	err := filepath.Walk(*p, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
+			return err
+		}
 
-		err := filepath.Walk(*path, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
-				return err
-			}
+		mr, err := match(path)
 
-			if j := strings.Index(path, needle); !info.IsDir() && j != -1 {
-				found = append(found, RenameTarget{
-					Path:     path,
-					Basename: path[:j+len(needle)],
-				})
+		if err == nil {
+			rename[mr.Basename] = append(rename[mr.Basename], mr)
+		}
+		return nil
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, mrs := range rename {
+		for _, mr := range mrs {
+			n := fmt.Sprintf("%s/%s (%d of %d).%s", filepath.Dir(mr.Filename), mr.Basename, mr.Index, len(mrs), mr.Extension)
+			fmt.Printf("File %v is renamed to %v\n", mr.Filename, n)
+
+			if *d {
+				os.Rename(mr.Filename, n)
 			}
-			return nil
-		})
+		}
+	}
+}
+
+type MatchResult struct {
+	Filename  string
+	Basename  string
+	Index     int
+	Extension string
+}
+
+func match(filename string) (MatchResult, error) {
+	results := make([][][]byte, 1)
+	re := regexp.MustCompile(`(\w+)_(\d{3})\.(\w+)`)
+	results = re.FindAllSubmatch([]byte(filename), -1)
+
+	if len(results) > 0 {
+		i, err := strconv.Atoi(string(results[0][2]))
 
 		if err != nil {
 			panic(err)
 		}
 
-		for k, rt := range found {
-			err = os.Rename(rt.Path, fmt.Sprintf("%v_(%d of %d).txt", rt.Basename, k+1, len(found)))
-			if err != nil {
-				panic(err)
-			}
-		}
+		return MatchResult{
+			Filename:  filename,
+			Basename:  string(results[0][1]),
+			Index:     i,
+			Extension: string(results[0][3]),
+		}, nil
 	}
 
-
+	return MatchResult{}, errors.New(`filename does not match our pattern (\w+)_(\d{3})\.(\w+)`)
 }
