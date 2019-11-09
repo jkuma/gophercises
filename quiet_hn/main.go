@@ -3,14 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/jkuma/gophercises/quiet_hn/hn"
 	"html/template"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-
-	"github.com/jkuma/gophercises/quiet_hn/hn"
 )
 
 func main() {
@@ -25,6 +24,7 @@ func main() {
 	http.HandleFunc("/", handler(numStories, tpl))
 
 	// Start the server
+	fmt.Println("Server listening on port", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
 
@@ -38,21 +38,19 @@ func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 			return
 		}
 		var stories []item
-
 		c := make(chan item, numStories)
+		ids = ids[:numStories]
 
-		for k, id := range ids {
-			if k < numStories {
-				go getStoryItem(client, id, c)
-			}
+		for _, id := range ids {
+			go getStoryItem(client, id, c)
 		}
 
-		for i := 0; i < numStories; i++{
+		for i := 0; i < numStories; i++ {
 			stories = append(stories, <-c)
 		}
 
 		data := templateData{
-			Stories: stories,
+			Stories: sort(stories, ids),
 			Time:    time.Now().Sub(start),
 		}
 		err = tpl.Execute(w, data)
@@ -61,6 +59,20 @@ func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 			return
 		}
 	})
+}
+
+func sort(items []item, ids []int) []item {
+	sorted := make([]item, len(items))
+
+	for k, id := range ids {
+		for _, item := range items {
+			if id == item.ID {
+				sorted[k] = item
+			}
+		}
+	}
+
+	return sorted
 }
 
 func getStoryItem(client hn.Client, id int, c chan item) {
