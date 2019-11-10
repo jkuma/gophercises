@@ -5,6 +5,7 @@ import (
 	"github.com/jkuma/gophercises/quiet_hn/hn"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // Story is the same as the hn.Item, but adds the Host field
@@ -19,7 +20,25 @@ type result struct {
 	Error error
 }
 
-func GetTopStories(numStories int) ([]Story, error) {
+var (
+	cache           []Story
+	cacheExpiration time.Time
+)
+
+func GetCachedTopStories(numStories int) ([]Story, error) {
+	if time.Now().Sub(cacheExpiration) < 0 {
+		return cache, nil
+	}
+	stories, err := getTopStories(numStories)
+	if err != nil {
+		return nil, err
+	}
+	cache = stories
+	cacheExpiration = time.Now().Add(15 * time.Second)
+	return cache, nil
+}
+
+func getTopStories(numStories int) ([]Story, error) {
 	var client hn.Client
 	stories := make([]Story, numStories)
 	ids, err := client.TopItems()
@@ -31,6 +50,7 @@ func GetTopStories(numStories int) ([]Story, error) {
 
 	for k, id := range ids[:numStories] {
 		go func(id int, index int) {
+			var client hn.Client
 			hnItem, err := client.GetItem(id)
 			if err == nil {
 				Story := parseHNItem(hnItem)

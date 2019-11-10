@@ -29,7 +29,7 @@ func main() {
 func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		stories, err := story.GetTopStories(numStories)
+		stories, err := story.GetCachedTopStories(numStories)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
