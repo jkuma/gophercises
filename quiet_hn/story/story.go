@@ -25,20 +25,7 @@ var (
 	cacheExpiration time.Time
 )
 
-func GetCachedTopStories(numStories int) ([]Story, error) {
-	if time.Now().Sub(cacheExpiration) < 0 {
-		return cache, nil
-	}
-	stories, err := getTopStories(numStories)
-	if err != nil {
-		return nil, err
-	}
-	cache = stories
-	cacheExpiration = time.Now().Add(15 * time.Second)
-	return cache, nil
-}
-
-func getTopStories(numStories int) ([]Story, error) {
+func GetTopStories(numStories int) ([]Story, error) {
 	var client hn.Client
 	stories := make([]Story, numStories)
 	ids, err := client.TopItems()
