@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Animal interface {
 	Hello() string
@@ -28,4 +30,11 @@ func main() {
 
 	mc := MecanicCat{Cat:cat}
 	catHello(mc)
+
+	var i interface{} = mc
+	a, ok := i.(Animal)
+
+	if ok {
+		a.Hello()
+	}
 }

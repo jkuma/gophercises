@@ -36,6 +36,7 @@ func recoverMux(mux *http.ServeMux, develop bool) http.HandlerFunc {
 
 		rw := responseWriter{ResponseWriter: w}
 		mux.ServeHTTP(&rw, r)
+		rw.flush()
 	}
 
 }
