@@ -49,7 +49,6 @@ func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 		}
 	}()
 
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		stories, err := sc.stories()

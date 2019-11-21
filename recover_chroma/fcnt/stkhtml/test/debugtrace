@@ -1,0 +1,25 @@
+goroutine 19 [running]:
+runtime/debug.Stack(0x0, 0x0, 0x0)
+	/usr/lib/go-1.13/src/runtime/debug/stack.go:24 +0xa1
+main.recoverMux.func1.1(0x85d4c0, 0xc0000f40e0, 0xc000094e00)
+	/home/jonathan/Documents/Code/Go/recover_chroma/main.go:25 +0x106
+panic(0x78d940, 0x853ac0)
+	/usr/lib/go-1.13/src/runtime/panic.go:679 +0x1e0
+main.funcThatPanics()
+	/home/jonathan/Documents/Code/Go/recover_chroma/main.go:53 +0x39
+main.panicDemo(0x85d4c0, 0xc0000f40e0, 0xc00010e000)
+	/home/jonathan/Documents/Code/Go/recover_chroma/main.go:43 +0x20
+net/http.HandlerFunc.ServeHTTP(0x818758, 0x85d4c0, 0xc0000f40e0, 0xc00010e000)
+	/usr/lib/go-1.13/src/net/http/server.go:2007 +0x44
+net/http.(*ServeMux).ServeHTTP(0xc0000cc280, 0x85d4c0, 0xc0000f40e0, 0xc00010e000)
+	/usr/lib/go-1.13/src/net/http/server.go:2387 +0x1a6
+main.recoverMux.func1(0x85d4c0, 0xc0000f40e0, 0xc00010e000)
+	/home/jonathan/Documents/Code/Go/recover_chroma/main.go:37 +0xb2
+net/http.HandlerFunc.ServeHTTP(0xc0000a8240, 0x85d4c0, 0xc0000f40e0, 0xc00010e000)
+	/usr/lib/go-1.13/src/net/http/server.go:2007 +0x44
+net/http.serverHandler.ServeHTTP(0xc0000f4000, 0x85d4c0, 0xc0000f40e0, 0xc00010e000)
+	/usr/lib/go-1.13/src/net/http/server.go:2802 +0x20f
+net/http.(*conn).serve(0xc0000bab40, 0x85da00, 0xc0000cc340)
+	/usr/lib/go-1.13/src/net/http/server.go:1890 +0x1716
+created by net/http.(*Server).Serve
+	/usr/lib/go-1.13/src/net/http/server.go:2927 +0x911

@@ -1,10 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"github.com/jkuma/gophercises/recover_chroma/fcnt/stkhtml"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"runtime/debug"
@@ -24,65 +23,21 @@ func recoverMux(mux *http.ServeMux, develop bool) http.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				log.Println("recover from", r)
-				log.Println(string(debug.Stack()))
+				j, err := stkhtml.HtmlOutput(debug.Stack())
+				log.Println(j, err)
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("Something went wrong"))
 
 				if develop {
+					w.Write([]byte("\n"))
 					w.Write(debug.Stack())
 				}
 			}
 		}()
 
-		rw := responseWriter{ResponseWriter: w}
-		mux.ServeHTTP(&rw, r)
-		rw.flush()
+		mux.ServeHTTP(w, r)
 	}
 
-}
-
-type responseWriter struct {
-	http.ResponseWriter
-	writes [][]byte
-	status int
-}
-
-func (rw *responseWriter) Write(b []byte) (int, error) {
-	rw.writes = append(rw.writes, b)
-	return len(b), nil
-}
-
-func (rw *responseWriter) WriteHeader(statusCode int) {
-	rw.status = statusCode
-}
-
-func (rw *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	hijacker, ok := rw.ResponseWriter.(http.Hijacker)
-	if !ok {
-		return nil, nil, fmt.Errorf("the ResponseWriter does not support the Hijacker interface")
-	}
-	return hijacker.Hijack()
-}
-
-func (rw *responseWriter) Flush() {
-	flusher, ok := rw.ResponseWriter.(http.Flusher)
-	if !ok {
-		return
-	}
-	flusher.Flush()
-}
-
-func (rw *responseWriter) flush() error {
-	if rw.status != 0 {
-		rw.ResponseWriter.WriteHeader(rw.status)
-	}
-	for _, write := range rw.writes {
-		_, err := rw.ResponseWriter.Write(write)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func panicDemo(w http.ResponseWriter, r *http.Request) {

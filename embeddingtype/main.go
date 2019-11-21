@@ -25,16 +25,9 @@ func catHello(a Animal) {
 }
 
 func main() {
-	cat := Cat{Color:"black"}
+	cat := Cat{Color: "black"}
 	catHello(cat)
 
-	mc := MecanicCat{Cat:cat}
+	mc := MecanicCat{Cat: cat}
 	catHello(mc)
-
-	var i interface{} = mc
-	a, ok := i.(Animal)
-
-	if ok {
-		a.Hello()
-	}
 }
