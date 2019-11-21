@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 )
 
 type FileContent struct {
-	Content   []byte
-	Extension string
-	Size      int64
+	Content []byte
+	Size    int64
 }
 
 func (f *FileContent) Write(p []byte) (n int, err error) {
@@ -27,13 +25,12 @@ func (f *FileContent) String() string {
 }
 
 func GetFileContent(filename string) (*FileContent, error) {
+	fc := new(FileContent)
 	f, err := os.Open(filename)
 
 	if err != nil {
-		return &FileContent{}, errors.New(fmt.Sprintf("The file %v cannot been opened. Err: %v", filename, err))
+		return fc, errors.New(fmt.Sprintf("The file %v cannot been opened. Err: %v", filename, err))
 	}
-
-	fc := &FileContent{Extension: filepath.Ext(filename)}
 
 	fc.Size, err = io.Copy(fc, f)
 

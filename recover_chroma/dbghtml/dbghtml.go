@@ -1,4 +1,4 @@
-package stkhtml
+package dbghtml
 
 import (
 	"bytes"
@@ -19,22 +19,28 @@ type Trace struct {
 }
 
 var defaultTemplate = `
+<!DOCTYPE html>
+<h2>Debug: stack trace</h2>
 <ol>
 	{{range .Traces}}
 		<li>{{.Command}}</li>
 		<ul>
-			<li><a href="{{.Url}}">{{.Filename}}</a></li>
+			<li><a target="_BLANK" href="{{.Url}}">{{.Filename}}</a></li>
 		</ul>
 	{{end}}
 </ol>
 `
 
-func HtmlOutput(b []byte) (string, error) {
+func Html(b []byte) []byte {
 	var buf bytes.Buffer
 	st := parseStackTrace(b)
 	err := template.Must(template.New("").Parse(defaultTemplate)).Execute(&buf, st)
 
-	return buf.String(), err
+	if err != nil {
+		panic(err)
+	}
+
+	return buf.Bytes()
 }
 
 func parseStackTrace(b []byte) StackTrace {
@@ -51,7 +57,7 @@ func parseStackTrace(b []byte) StackTrace {
 			res := re.FindAllSubmatch([]byte(html[k+1]), -1)
 
 			if len(res) > 0 {
-				t.Command, t.Url, t.Filename = html[k], fmt.Sprintf("%s/%s", res[0][1], res[0][2]), html[k+1]
+				t.Command, t.Url, t.Filename = html[k], fmt.Sprintf("/debug%s?highlight=%s", res[0][1], res[0][2]), html[k+1]
 				st.Traces[i] = t
 			}
 		}

@@ -12,8 +12,4 @@ func TestGetFileContent(t *testing.T) {
 	if len(fc.Content) == 0 {
 		t.Error("The file should not be empty.")
 	}
-
-	if fc.Extension != "html" {
-		t.Error("The file extension should be html.")
-	}
 }
