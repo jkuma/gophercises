@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"secret/secret"
+	"github.com/jkuma/gophercises/secret/secret"
 )
 
 func main() {
