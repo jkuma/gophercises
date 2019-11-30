@@ -51,43 +51,41 @@ func fileArray(filename string) (map[string][]byte, error) {
 	result := make(map[string][]byte)
 	file, err := os.Open(filename)
 
-	if err != nil {
-		panic(err)
-	}
+	if err == nil {
+		s := bufio.NewScanner(file)
 
-	s := bufio.NewScanner(file)
+		for s.Scan() {
+			cl := strings.Split(s.Text(), "=")
 
-	for s.Scan() {
-		cl := strings.Split(s.Text(), "=")
+			if len(cl) != 2 {
+				return result, errors.New(fmt.Sprintf("Line %s does not contains any '='", s.Text()))
+			}
 
-		if len(cl) != 2 {
-			return result, errors.New(fmt.Sprintf("Line %s does not contains any '='", s.Text()))
-		}
+			b, err := hex.DecodeString(cl[1])
 
-		b, err := hex.DecodeString(cl[1])
-
-		if err == nil {
-			result[cl[0]] = b
+			if err == nil {
+				result[cl[0]] = b
+			}
 		}
 	}
 
-	return result, nil
+	return result, err
 }
 
 func writeFile(filename string, m map[string][]byte) (int64, error) {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_TRUNC, os.ModePerm)
 
-	if err != nil {
-		panic(err)
+	if err == nil {
+		var buf bytes.Buffer
+
+		for key, val := range m {
+			buf.Write([]byte(fmt.Sprintf("%s=%s\n", unique(key), hex.EncodeToString(val))))
+		}
+
+		return io.Copy(file, &buf)
 	}
 
-	var buf bytes.Buffer
-
-	for key, val := range m {
-		buf.Write([]byte(fmt.Sprintf("%s=%s\n", unique(key), hex.EncodeToString(val))))
-	}
-
-	return io.Copy(file, &buf)
+	return 0, err
 }
 
 func unique(key string) string {
