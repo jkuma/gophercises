@@ -69,7 +69,7 @@ func hello(rw http.ResponseWriter, r *http.Request) {
 // Highlight some text using chroma handlers.
 func highlight(w io.Writer, source string, number int) error {
 	// Determine lexer.
-	l := lexers.Analyse(source)
+	l := lexers.Get("go")
 	if l == nil {
 		l = lexers.Fallback
 	}
