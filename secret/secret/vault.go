@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 )
 
 type VaultAccess interface {
@@ -19,9 +20,12 @@ type VaultAccess interface {
 type FileVault struct {
 	Key      []byte
 	Filename string
+	Mutex sync.Mutex
 }
 
 func (f FileVault) Set(key, val string) error {
+	f.Mutex.Lock()
+	defer f.Mutex.Unlock()
 	m, err := fileArray(f.Filename)
 
 	if err == nil {
@@ -33,6 +37,8 @@ func (f FileVault) Set(key, val string) error {
 }
 
 func (f FileVault) Get(key string) (string, error) {
+	f.Mutex.Lock()
+	defer f.Mutex.Unlock()
 	var res string
 	m, err := fileArray(f.Filename)
 
@@ -52,6 +58,7 @@ func fileArray(filename string) (map[string][]byte, error) {
 	file, err := os.Open(filename)
 
 	if err == nil {
+		defer file.Close()
 		s := bufio.NewScanner(file)
 
 		for s.Scan() {
@@ -76,6 +83,7 @@ func writeFile(filename string, m map[string][]byte) (int64, error) {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_TRUNC, os.ModePerm)
 
 	if err == nil {
+		defer file.Close()
 		var buf bytes.Buffer
 
 		for key, val := range m {
