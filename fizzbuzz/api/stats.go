@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"github.com/jkuma/gophercises/fizzbuzz/repository"
 	"net/http"
@@ -29,16 +28,11 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 
 func getTopApiCall() (uri string, hits int, parameters url.Values, err error) {
 	var key []byte
-	key, err = repository.HighScore()
+	key, hits, err = repository.HighScore()
 
 	if err == nil {
 		uri = string(key)
-		val, err := repository.Get(key)
-		if err == nil {
-			hits = int(binary.BigEndian.Uint64(val))
-		}
-
-		u, err := url.Parse(string(key))
+		u, err := url.Parse(uri)
 		if err == nil {
 			parameters = u.Query()
 		}

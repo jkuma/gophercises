@@ -41,8 +41,7 @@ func Get(key []byte) ([]byte, error) {
 	return val, err
 }
 
-func HighScore() (key []byte, err error) {
-	var score int
+func HighScore() (key []byte, score int, err error) {
 	db := database.Get()
 
 	err = db.View(func(txn *badger.Txn) error {
@@ -66,5 +65,5 @@ func HighScore() (key []byte, err error) {
 		return nil
 	})
 
-	return key, err
+	return key, score, err
 }
