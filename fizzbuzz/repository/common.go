@@ -1,35 +1,6 @@
 package repository
 
-import (
-	"encoding/binary"
-	"github.com/jkuma/gophercises/fizzbuzz/database"
-	"net/http"
-	"time"
-)
-
-func Increment(key []byte) ([]byte, error) {
-	db := database.Get()
-
-	m := db.GetMergeOperator(key, add, 200*time.Millisecond)
-	defer m.Stop()
-
-	m.Add(uint64ToBytes(1))
-
-	return m.Get()
-}
-
-func GetUri(r *http.Request) string {
-	if !r.URL.IsAbs() {
-		scheme := "http://"
-		if r.TLS != nil {
-			scheme = "https://"
-		}
-
-		return scheme + r.Host + r.URL.RequestURI()
-	}
-
-	return r.URL.String()
-}
+import "encoding/binary"
 
 // Merge function to add two uint64 numbers
 func add(existing, new []byte) []byte {

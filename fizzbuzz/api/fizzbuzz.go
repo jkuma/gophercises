@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/jkuma/gophercises/fizzbuzz/repository"
+	"github.com/jkuma/gophercises/fizzbuzz/request"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -16,7 +16,7 @@ func GetFizzBuzz(w http.ResponseWriter, r *http.Request) {
 		}
 
 		js, err := json.Marshal(response{
-			Uri:     repository.GetUri(r),
+			Uri:     request.GetUri(r),
 			Results: getResults(parseQueryParameters(r.URL.Query())),
 		})
 
@@ -27,9 +27,9 @@ func GetFizzBuzz(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func parseQueryParameters(query url.Values) (int, int, int, string, string) {
-	var int1, int2, limit int = 3, 5, 100
-	var str1, str2 string = "fizz", "buzz"
+func parseQueryParameters(query url.Values) (int1 int, int2 int, limit int, str1 string, str2 string) {
+	int1, int2, limit = 3, 5, 100
+	str1, str2 = "fizz", "buzz"
 
 	for n, v := range query {
 		switch n {
