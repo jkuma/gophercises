@@ -41,7 +41,7 @@ func Get(key []byte) ([]byte, error) {
 	return val, err
 }
 
-func FetchHighestScore() (key []byte, err error) {
+func HighScore() (key []byte, err error) {
 	var score int
 	db := database.Get()
 

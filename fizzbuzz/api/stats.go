@@ -29,7 +29,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 
 func getTopApiCall() (uri string, hits int, parameters url.Values, err error) {
 	var key []byte
-	key, err = repository.FetchHighestScore()
+	key, err = repository.HighScore()
 
 	if err == nil {
 		uri = string(key)

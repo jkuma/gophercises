@@ -76,7 +76,7 @@ func TestUpdate(t *testing.T) {
 func TestGet(t *testing.T) {
 	setUp(t)
 	defer database.Get().Close()
-
+	
 	type args struct {
 		key []byte
 	}
@@ -87,10 +87,16 @@ func TestGet(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "fetch",
+			name:    "get",
 			args:    args{key: []byte("http://localhost:3000/api/toto?int1=1")},
 			want:    uint64ToBytes(4),
 			wantErr: false,
+		},
+		{
+			name:    "get",
+			args:    args{key: []byte("http://localhost:3000/api/tata?int1=1")},
+			want:    []byte(nil),
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -101,7 +107,36 @@ func TestGet(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Fetch() got = %v, want %v", bytesToUint64(got), bytesToUint64(tt.want))
+				t.Errorf("Fetch() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHighScore(t *testing.T) {
+	setUp(t)
+	defer database.Get().Close()
+
+	tests := []struct {
+		name    string
+		wantKey []byte
+		wantErr bool
+	}{
+		{
+			name:    "highscore",
+			wantKey: []byte("http://localhost:3000/api/toto?int1=1"),
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotKey, err := HighScore()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("HighScore() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotKey, tt.wantKey) {
+				t.Errorf("HighScore() gotKey = %v, want %v", gotKey, tt.wantKey)
 			}
 		})
 	}
