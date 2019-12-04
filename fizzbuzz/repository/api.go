@@ -8,9 +8,8 @@ import (
 
 func Update(r *http.Request) error {
 	db := database.Get()
-	defer db.Close()
 
-	key := []byte(r.URL.RequestURI())
+	key := []byte(r.URL.String())
 
 	return db.Update(func(txn *badger.Txn) error {
 		val, err := MergedValue(key)
