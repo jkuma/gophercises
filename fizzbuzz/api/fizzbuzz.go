@@ -17,7 +17,7 @@ func GetFizzBuzz(w http.ResponseWriter, r *http.Request) {
 
 		js, err := json.Marshal(response{
 			Uri:     request.GetUri(r),
-			Results: getResults(parseQueryParameters(r.URL.Query())),
+			Results: fbResults(fbQueryParams(r.URL.Query())),
 		})
 
 		httpErr(w, err)
@@ -27,7 +27,7 @@ func GetFizzBuzz(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func parseQueryParameters(query url.Values) (int1 int, int2 int, limit int, str1 string, str2 string) {
+func fbQueryParams(query url.Values) (int1 int, int2 int, limit int, str1 string, str2 string) {
 	int1, int2, limit = 3, 5, 100
 	str1, str2 = "fizz", "buzz"
 
@@ -52,7 +52,7 @@ func parseQueryParameters(query url.Values) (int1 int, int2 int, limit int, str1
 	return int1, int2, limit, str1, str2
 }
 
-func getResults(int1, int2, limit int, str1, str2 string) []string {
+func fbResults(int1, int2, limit int, str1, str2 string) []string {
 	var results = make([]string, limit)
 
 	for k, _ := range results {

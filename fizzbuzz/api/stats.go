@@ -1,6 +1,6 @@
 package api
 
-import (
+import 	(
 	"encoding/json"
 	"github.com/jkuma/gophercises/fizzbuzz/repository"
 	"net/http"
@@ -15,7 +15,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 			Parameters url.Values
 		}
 
-		u, h, p, err := getTopApiCall()
+		u, h, p, err := stsResults()
 		httpErr(w, err)
 
 		js, err := json.Marshal(response{Uri: u, Hits: h, Parameters: p})
@@ -26,14 +26,14 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getTopApiCall() (uri string, hits int, parameters url.Values, err error) {
+func stsResults() (uri string, hits int, parameters url.Values, err error) {
 	var key []byte
 	key, hits, err = repository.HighScore()
 
 	if err == nil {
 		uri = string(key)
-		u, err := url.Parse(uri)
-		if err == nil {
+
+		if u, err := url.Parse(uri); err == nil {
 			parameters = u.Query()
 		}
 	}

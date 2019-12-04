@@ -8,15 +8,18 @@ import (
 	"time"
 )
 
-func Update(r *http.Request) error {
+func Update(r *http.Request) (err error) {
 	db := database.Get()
 
 	key := []byte(request.GetUri(r))
 
 	return db.Update(func(txn *badger.Txn) error {
-		val, err := Increment(key)
+		m := db.GetMergeOperator(key, add, 200*time.Millisecond)
+		defer m.Stop()
 
-		if err == badger.ErrKeyNotFound {
+		m.Add(uint64ToBytes(1))
+
+		if val, err := m.Get(); err == badger.ErrKeyNotFound {
 			return txn.Set(key, val)
 		}
 
@@ -40,17 +43,6 @@ func Get(key []byte) (val []byte, err error) {
 	})
 
 	return val, err
-}
-
-func Increment(key []byte) ([]byte, error) {
-	db := database.Get()
-
-	m := db.GetMergeOperator(key, add, 200*time.Millisecond)
-	defer m.Stop()
-
-	m.Add(uint64ToBytes(1))
-
-	return m.Get()
 }
 
 func HighScore() (key []byte, score int, err error) {

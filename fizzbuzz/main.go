@@ -12,7 +12,7 @@ import (
 
 func main() {
 	port := flag.String("port", "3000", "Provides the port number for http server.")
-	dbpath := flag.String("dbpath", "./fizzbuzz.db", "Provides the full qualified path to badger db.")
+	dbpath := flag.String("dbpath", "./fizzbuzz.db", "Provides the full qualified path to badger db file.")
 	flag.Parse()
 
 	mux := http.NewServeMux()
