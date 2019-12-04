@@ -10,7 +10,6 @@ import (
 
 func GetFizzBuzz(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-
 		type response struct {
 			Uri     string
 			Results []string
@@ -21,10 +20,7 @@ func GetFizzBuzz(w http.ResponseWriter, r *http.Request) {
 			Results: getResults(parseQueryParameters(r.URL.Query())),
 		})
 
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		httpErr(w, err)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
