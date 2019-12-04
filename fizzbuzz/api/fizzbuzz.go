@@ -2,20 +2,22 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/jkuma/gophercises/fizzbuzz/repository"
 	"net/http"
 	"net/url"
 	"strconv"
 )
 
-type response struct {
-	Uri     string
-	Results []string
-}
-
 func GetFizzBuzz(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+
+		type response struct {
+			Uri     string
+			Results []string
+		}
+
 		js, err := json.Marshal(response{
-			Uri:     getUri(r),
+			Uri:     repository.GetUri(r),
 			Results: getResults(parseQueryParameters(r.URL.Query())),
 		})
 
@@ -77,17 +79,4 @@ func getResults(int1, int2, limit int, str1, str2 string) []string {
 	}
 
 	return results
-}
-
-func getUri(r *http.Request) string {
-	if !r.URL.IsAbs() {
-		scheme := "http://"
-		if r.TLS != nil {
-			scheme = "https://"
-		}
-
-		return scheme + r.Host + r.URL.RequestURI()
-	}
-
-	return r.URL.RequestURI()
 }

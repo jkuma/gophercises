@@ -9,19 +9,62 @@ import (
 func Update(r *http.Request) error {
 	db := database.Get()
 
-	key := []byte(r.URL.String())
+	key := []byte(GetUri(r))
 
 	return db.Update(func(txn *badger.Txn) error {
-		val, err := MergedValue(key)
+		val, err := Increment(key)
 
-		switch err {
-		case badger.ErrKeyNotFound:
-			e := badger.NewEntry(key, DefaultValue())
-			return txn.SetEntry(e)
-		case nil:
+		if err == badger.ErrKeyNotFound {
 			return txn.Set(key, val)
-		default:
+		}
+
+		return err
+	})
+}
+
+func Get(key []byte) ([]byte, error) {
+	var val []byte
+	db := database.Get()
+
+	err := db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get(key)
+		if err != nil {
 			return err
 		}
+
+		return item.Value(func(v []byte) error {
+			val = append([]byte{}, v...)
+			return err
+		})
 	})
+
+	return val, err
+}
+
+func FetchHighestScore() (key []byte, err error) {
+	var score int
+	db := database.Get()
+
+	err = db.View(func(txn *badger.Txn) error {
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		it := txn.NewIterator(opts)
+		defer it.Close()
+		for it.Rewind(); it.Valid(); it.Next() {
+			item := it.Item()
+			err := item.Value(func(v []byte) error {
+				if int(bytesToUint64(v)) > score {
+					score = int(bytesToUint64(v))
+					key = item.Key()
+				}
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
+	return key, err
 }

@@ -5,18 +5,30 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 )
+
+type apiCall struct {
+	req *http.Request
+	m   *sync.Mutex
+}
 
 func StatsMux(mux *http.ServeMux, hook string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if strings.Index(r.URL.Path, hook) != -1 {
-			err := repository.Update(r)
-
-			if err != nil {
-				log.Fatal(err)
-			}
+			go storeApiCall(apiCall{req: r, m: &sync.Mutex{}})
 		}
 
 		mux.ServeHTTP(w, r)
+	}
+}
+
+func storeApiCall(call apiCall) {
+	call.m.Lock()
+	defer call.m.Unlock()
+	err := repository.Update(call.req)
+
+	if err != nil {
+		log.Fatal(err)
 	}
 }

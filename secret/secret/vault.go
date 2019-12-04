@@ -20,7 +20,7 @@ type VaultAccess interface {
 type FileVault struct {
 	Key      []byte
 	Filename string
-	Mutex sync.Mutex
+	Mutex    sync.Mutex
 }
 
 func (f FileVault) Set(key, val string) error {
